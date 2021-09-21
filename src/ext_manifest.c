@@ -16,7 +16,7 @@
 #include <rimage/manifest.h>
 
 const struct ext_man_header ext_man_template = {
-	.magic = EXT_MAN_MAGIC_NUMBER,
+	.magic = EXT_MAN_MAGIC_NUMBER_SOF, /* Will be updated base on CONFIG_<type>_MANIFEST */
 	.header_version = EXT_MAN_VERSION,
 	.header_size = sizeof(struct ext_man_header),
 	.full_size = 0,	/* runtime variable */
@@ -104,6 +104,11 @@ static int ext_man_build(const struct module *module,
 
 	/* fill ext_man struct, size aligned to 4 to avoid unaligned accesses */
 	memcpy(&ext_man, &ext_man_template, sizeof(struct ext_man_header));
+#if defined(CONFIG_CAVS_MANIFEST)
+	ext_man.magic = EXT_MAN_MAGIC_NUMBER_CAVS;
+#else
+	ext_man.magic = EXT_MAN_MAGIC_NUMBER_SOF;
+#endif
 	ext_man.full_size = ext_man.header_size;
 	ext_man.full_size += section->size;
 	if (ext_man.full_size % 4) {
